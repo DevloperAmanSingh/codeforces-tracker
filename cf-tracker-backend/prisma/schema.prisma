@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  email            String?
+  phone            String?
+  cfHandle         String             @unique
+  currentRating    Int?
+  maxRating        Int?
+  lastUpdated      DateTime?
+  autoReminder     Boolean            @default(true)
+  remindersSent    Int                @default(0)
+
+  contests         ContestHistory[]
+  problems         ProblemSolved[]
+}
+
+model ContestHistory {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId        String
+  contestId        Int
+  contestName      String
+  ratingChange     Int
+  rank             Int
+  timestamp        DateTime
+  unsolvedCount    Int
+
+  student          Student  @relation(fields: [studentId], references: [id])
+}
+
+model ProblemSolved {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId        String
+  problemId        String
+  rating           Int?
+  solvedAt         DateTime
+
+  student          Student  @relation(fields: [studentId], references: [id])
+}
