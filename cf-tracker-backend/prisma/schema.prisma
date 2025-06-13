@@ -24,16 +24,18 @@ model Student {
 }
 
 model ContestHistory {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  studentId        String
-  contestId        Int
-  contestName      String
-  ratingChange     Int
-  rank             Int
-  timestamp        DateTime
-  unsolvedCount    Int
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId    String
+  contestName  String
+  contestId    String   // e.g., "1849"
+  rank         Int
+  oldRating    Int
+  newRating    Int
+  ratingChange Int
+  unsolvedCount Int
+  timestamp    DateTime
 
-  student          Student  @relation(fields: [studentId], references: [id])
+  student      Student  @relation(fields: [studentId], references: [id])
 }
 
 model ProblemSolved {
