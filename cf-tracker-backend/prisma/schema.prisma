@@ -24,26 +24,39 @@ model Student {
 }
 
 model ContestHistory {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  studentId    String
-  contestName  String
-  contestId    String   // e.g., "1849"
-  rank         Int
-  oldRating    Int
-  newRating    Int
-  ratingChange Int
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId     String   @db.ObjectId
+  contestName   String
+  contestId     String
+  rank          Int
+  oldRating     Int
+  newRating     Int
+  ratingChange  Int
   unsolvedCount Int
-  timestamp    DateTime
+  timestamp     DateTime
 
-  student      Student  @relation(fields: [studentId], references: [id])
+  student       Student  @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
+  @@index([studentId, timestamp])
 }
 
 model ProblemSolved {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  studentId        String
-  problemId        String
-  rating           Int?
-  solvedAt         DateTime
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId   String   @db.ObjectId
+  problemId   String
+  rating      Int?
+  solvedAt    DateTime
 
-  student          Student  @relation(fields: [studentId], references: [id])
+  student     Student  @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
+  @@index([studentId, solvedAt])
+  @@index([studentId, rating])
+}
+
+model AdminSettings {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  cronExpression String  @default("0 2 * * *")
+  enabled        Boolean @default(true)
 }
