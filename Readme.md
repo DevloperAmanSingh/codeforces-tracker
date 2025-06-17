@@ -2,6 +2,11 @@
 
 A comprehensive platform to track and analyze student performance on Codeforces with automated notifications and detailed analytics.
 
+
+## 📱 Demo
+
+[**Click to watch the portal video [Google Drive] **](https://drive.google.com/file/d/1hLp7_KLg7A7WVgd2lVcK4_LyQdT85B5D/view?usp=sharing)
+
 ## 🎯 Features
 
 ### Student Management
@@ -75,9 +80,6 @@ EMAIL_PASS="your-app-password"
 NEXT_PUBLIC_API_URL="http://localhost:3001"
 ```
 
-## 📱 Demo
-
-[**Live Demo Video**](https://drive.google.com/file/d/1hLp7_KLg7A7WVgd2lVcK4_LyQdT85B5D/view?usp=sharing)
 
 ## 🔧 API Endpoints
 
