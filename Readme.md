@@ -5,7 +5,7 @@ A comprehensive platform to track and analyze student performance on Codeforces 
 
 ## 📱 Demo
 
-[**Click to watch the portal video [Google Drive] **](https://drive.google.com/file/d/1hLp7_KLg7A7WVgd2lVcK4_LyQdT85B5D/view?usp=sharing)
+[Click to watch the portal video [Google Drive] ](https://drive.google.com/file/d/1hLp7_KLg7A7WVgd2lVcK4_LyQdT85B5D/view?usp=sharing)
 
 ## 🎯 Features
 
