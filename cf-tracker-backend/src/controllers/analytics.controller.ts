@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { subDays } from "date-fns";
-import { getProblemSolvingStats } from "../services/cf.service";
+import {
+  getProblemSolvingStats,
+  getRatingDistribution,
+} from "../services/cf.service";
 
 export const getContestHistory = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -47,5 +50,22 @@ export const getProblemStats = async (req: Request, res: Response) => {
     res.json(stats);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch problem solving stats" });
+  }
+};
+
+export const getRatingDistributionStats = async (
+  req: Request,
+  res: Response
+) => {
+  const { id } = req.params;
+  const days = req.query.days ? parseInt(req.query.days as string) : undefined;
+
+  try {
+    const stats = await getRatingDistribution(id, days);
+    res.json(stats);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to fetch rating distribution stats" });
   }
 };

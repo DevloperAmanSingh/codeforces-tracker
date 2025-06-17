@@ -59,6 +59,7 @@ export const syncContestHistory = async (handle: string, studentId: string) => {
     await Promise.all([
       saveContestHistory(studentId, contestHistoryData),
       saveProblemSolvingData(studentId, problemSolvingData),
+      updateStudentRatings(studentId, ratingChanges),
     ]);
 
     console.log(
@@ -284,5 +285,123 @@ export const getProblemSolvingStats = async (
   } catch (error) {
     console.error("Error fetching problem solving stats:", error);
     throw new Error("Failed to fetch problem solving stats from database");
+  }
+};
+
+const updateStudentRatings = async (
+  studentId: string,
+  ratingChanges: RatingChange[]
+) => {
+  if (ratingChanges.length === 0) return;
+  const currentRating = ratingChanges[ratingChanges.length - 1].newRating;
+  const maxRating = ratingChanges.reduce(
+    (max, entry) => Math.max(max, entry.newRating),
+    0
+  );
+  try {
+    await prisma.student.update({
+      where: { id: studentId },
+      data: {
+        currentRating,
+        maxRating,
+      },
+    });
+  } catch (error) {
+    console.error(`Failed to update ratings for student ${studentId}:`, error);
+  }
+};
+
+// Utility function to get rating distribution stats
+export const getRatingDistribution = async (
+  studentId: string,
+  days?: number
+) => {
+  try {
+    const toDate = new Date();
+    const fromDate = new Date();
+    if (days) {
+      fromDate.setDate(fromDate.getDate() - days);
+    } else {
+      fromDate.setFullYear(2000); // Set to a very old date for all time
+    }
+
+    const whereClause: any = {
+      studentId,
+      solvedAt: {
+        gte: fromDate,
+        lte: toDate,
+      },
+    };
+
+    const problemsSolved = await prisma.problemSolved.findMany({
+      where: whereClause,
+      select: { rating: true },
+    });
+
+    // Initialize rating ranges
+    const ratingRanges = [
+      { range: "< 800", min: 0, max: 799, count: 0 },
+      { range: "800-899", min: 800, max: 899, count: 0 },
+      { range: "900-999", min: 900, max: 999, count: 0 },
+      { range: "1000-1099", min: 1000, max: 1099, count: 0 },
+      { range: "1100-1199", min: 1100, max: 1199, count: 0 },
+      { range: "1200-1299", min: 1200, max: 1299, count: 0 },
+      { range: "1300-1399", min: 1300, max: 1399, count: 0 },
+      { range: "1400-1499", min: 1400, max: 1499, count: 0 },
+      { range: "1500-1599", min: 1500, max: 1599, count: 0 },
+      { range: "1600-1699", min: 1600, max: 1699, count: 0 },
+      { range: "1700-1799", min: 1700, max: 1799, count: 0 },
+      { range: "1800-1899", min: 1800, max: 1899, count: 0 },
+      { range: "1900-1999", min: 1900, max: 1999, count: 0 },
+      { range: "2000-2099", min: 2000, max: 2099, count: 0 },
+      { range: "2100-2199", min: 2100, max: 2199, count: 0 },
+      { range: "2200-2299", min: 2200, max: 2299, count: 0 },
+      { range: "2300-2399", min: 2300, max: 2399, count: 0 },
+      { range: "2400-2499", min: 2400, max: 2499, count: 0 },
+      { range: "2500-2599", min: 2500, max: 2599, count: 0 },
+      { range: "2600-2699", min: 2600, max: 2699, count: 0 },
+      { range: "2700-2799", min: 2700, max: 2799, count: 0 },
+      { range: "2800-2899", min: 2800, max: 2899, count: 0 },
+      { range: "2900-2999", min: 2900, max: 2999, count: 0 },
+      { range: ">= 3000", min: 3000, max: 9999, count: 0 },
+      { range: "Unrated", min: null, max: null, count: 0 },
+    ];
+
+    // Count problems in each range
+    problemsSolved.forEach((problem) => {
+      const rating = problem.rating;
+
+      if (rating === null) {
+        ratingRanges[ratingRanges.length - 1].count++; // Unrated
+      } else {
+        const rangeIndex = ratingRanges.findIndex((range) => {
+          if (range.min === null) return false;
+          if (range.max === 9999) return rating >= range.min; // >= 3000 case
+          return rating >= range.min && rating <= range.max;
+        });
+
+        if (rangeIndex !== -1) {
+          ratingRanges[rangeIndex].count++;
+        }
+      }
+    });
+
+    // Filter out ranges with 0 problems for cleaner response
+    const nonEmptyRanges = ratingRanges.filter((range) => range.count > 0);
+
+    return {
+      studentId,
+      fromDate,
+      toDate,
+      totalProblems: problemsSolved.length,
+      ratingDistribution: nonEmptyRanges.map((range) => ({
+        range: range.range,
+        count: range.count,
+        percentage: Math.round((range.count / problemsSolved.length) * 100),
+      })),
+    };
+  } catch (error) {
+    console.error("Error fetching rating distribution:", error);
+    throw new Error("Failed to fetch rating distribution from database");
   }
 };
