@@ -6,7 +6,6 @@ import { sendReminderEmail } from "./email.service";
 
 let scheduledTask: cron.ScheduledTask | null = null;
 
-// Load settings and schedule job
 export const initScheduler = async () => {
   const settings = await getCronSettings();
   scheduleJob(settings.cronExpression, settings.enabled);
@@ -20,7 +19,7 @@ export const rescheduleCron = async (
   await prisma.adminSettings.upsert({
     where: { id: "singleton" },
     update: { cronExpression, enabled },
-    create: { cronExpression, enabled, id: undefined as unknown as string }, // id will auto-generate
+    create: { cronExpression, enabled, id: undefined as unknown as string },
   });
   // Reschedule job
   scheduleJob(cronExpression, enabled);
