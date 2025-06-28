@@ -7,6 +7,7 @@ import {
 } from "../services/scheduler.service";
 
 
+
 export const getCronSettings = async (_: Request, res: Response) => {
   const settings = await prisma.adminSettings.findFirst();
   res.json(settings || { cronExpression: "0 2 * * *", enabled: true });
